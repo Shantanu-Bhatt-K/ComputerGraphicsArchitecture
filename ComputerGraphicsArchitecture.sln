@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34616.47
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputerGraphicsArchitecture", "ComputerGraphicsArchitecture.csproj", "{AB9BE1F9-BE97-4D0A-9F9B-EAA13F9F94AD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB9BE1F9-BE97-4D0A-9F9B-EAA13F9F94AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB9BE1F9-BE97-4D0A-9F9B-EAA13F9F94AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB9BE1F9-BE97-4D0A-9F9B-EAA13F9F94AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB9BE1F9-BE97-4D0A-9F9B-EAA13F9F94AD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EE1B7786-1D53-4AB0-8ACB-6C06B5DC8C87}
+	EndGlobalSection
+EndGlobal
