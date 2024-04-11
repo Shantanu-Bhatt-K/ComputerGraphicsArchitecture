@@ -1,4 +1,5 @@
-﻿using ComputerGraphicsArchitecture.EngineClasses;
+﻿
+using ComputerGraphicsArchitecture.EngineClasses.Collision;
 using ComputerGraphicsArchitecture.EngineClasses.StaticClasses;
 using ComputerGraphicsArchitecture.GameClasses;
 using Microsoft.Xna.Framework;
@@ -13,7 +14,9 @@ namespace ComputerGraphicsArchitecture
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Player player=new();
-        private Collectible collectible = new();
+        private Rock rock = new();
+
+ 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -28,8 +31,9 @@ namespace ComputerGraphicsArchitecture
             FileReader.Init(Content);
             
 
-            player.Init(new Vector2(100, 100), "PlayerShip");
-            collectible.Init(new Vector2(200, 200), "Meteor");
+            player.Init(new Vector2(100, 200), "PlayerShip");
+            rock.Init(new Vector2(300, 100), "Meteor");
+
             base.Initialize();
         }
 
@@ -46,9 +50,9 @@ namespace ComputerGraphicsArchitecture
                 Exit();
 
             // TODO: Add your update logic here
-            Collider.Update(gameTime);
+            CollisionManager.Update();
             player.Update(gameTime);
-            collectible.Update(gameTime);
+            rock.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -58,7 +62,7 @@ namespace ComputerGraphicsArchitecture
             _spriteBatch.Begin();
             //_spriteBatch.Draw(planeTexure, new Vector2(100, 100), null, Color.White, 0, Vector2.Zero, new Vector2(1, 1), SpriteEffects.None, 0f);
             player.Draw(ref _spriteBatch,gameTime);
-            collectible.Draw(ref _spriteBatch,gameTime);
+            rock.Draw(ref _spriteBatch,gameTime);
             _spriteBatch.End();
             // TODO: Add your drawing code here
             

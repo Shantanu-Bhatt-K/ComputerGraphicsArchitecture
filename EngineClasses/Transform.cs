@@ -12,6 +12,6 @@ namespace ComputerGraphicsArchitecture.EngineClasses
     {
         public Vector2 position=Vector2.Zero;
         public float rotation=0;
-        public Vector2 scale=Vector2.One;
+        public Vector2 scale=Vector2.One*3;
     }
 }
