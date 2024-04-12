@@ -332,6 +332,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
             bool returnBool = false;
             hitPoint = new HitPoint();
             Vector2 disp = Vector2.Zero;
+            Vector2 position=Vector2.Zero;
             for (int i = 0; i < obbA.collisionPoints.Count; i++)
             {
                 Vector2 start1 = obbA.position;
@@ -348,7 +349,8 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                     if (t1 >= 0 && t1 < 1 && t2 > 0 && t2 < 1)
                     {
                         disp += (1 - t1) * (end1 - start1);
-                        returnBool= true;
+                        position += t1 * (end1 - start1);
+                        returnBool = true;
                     }
                 }
             }
@@ -370,6 +372,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                     if (t1 >= 0 && t1 < 1 && t2 > 0 && t2 < 1)
                     {
                         disp -= (1 - t1) * (end1 - start1);
+                        position -= t1 * (end1 - start1);
                         returnBool = true;
                     }
                 }
@@ -390,6 +393,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
 
             }
             hitPoint.normal = new Vector2(-normal.Y,normal.X) ;
+            hitPoint.position = obbA.position + position;
             return returnBool;
         }
 

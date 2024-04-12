@@ -25,7 +25,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
             collider.onCollisionStay += body.OnCollisionStay;
             collider.onCollisionExit += body.OnCollisionExit;
             body.Init(transform);
-            body.prevPos = transform.position + new Vector2(-1f, 0);
+            body.prevPos = transform.position + new Vector2(0, 0);
             collider.Init(transform.position,renderer.Width / 2* transform.scale.X);
         }
         public override void Update(GameTime gameTime)

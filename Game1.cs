@@ -32,7 +32,7 @@ namespace ComputerGraphicsArchitecture
             FileReader.Init(Content);
             
 
-            player.Init(new Vector2(100, 300), "PlayerShip");
+            player.Init(new Vector2(150, 300), "PlayerShip");
             rock.Init(new Vector2(100, 100), "Meteor");
             floor.Init(new Vector2(300, 500), "BlueBlock");
             base.Initialize();
