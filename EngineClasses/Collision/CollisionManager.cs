@@ -268,59 +268,77 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
 
         public static bool OBB_OBB_Collision(BoxCollider obbA, BoxCollider obbB, out HitPoint hitPoint)
         {
+            bool returnBool = false;
             hitPoint = new HitPoint();
-            Vector2 dir=obbB.position - obbA.position;
-            Vector2 pointOnB = getClosestonOBB(obbA.position, obbB);
-            Vector2 pointOnA= getClosestonOBB(obbB.position, obbA);
-            dir.Normalize();
-            float selfDist = Vector2.Dot(pointOnA-obbA.position,dir );
-            float otherDist= Vector2.Dot(pointOnB- obbA.position, dir);
-            if(CheckPointInBox(pointOnB, obbA) )
+            Vector2 disp = Vector2.Zero;
+            for (int i = 0; i < obbA.collisionPoints.Count; i++)
             {
-                hitPoint.position = pointOnB;
-                return true;
+                Vector2 start1 = obbA.position;
+                Vector2 end1 = obbA.collisionPoints[i];
+                for (int j = 0; j < obbB.collisionPoints.Count; j++)
+                {
+                    Vector2 start2 = obbB.collisionPoints[j];
+                    Vector2 end2 = obbB.collisionPoints[(j + 1) % obbB.collisionPoints.Count];
+
+                    float h = (end2.X - start2.X) * (start1.Y - end1.Y) - (start1.X - end1.X) * (end2.Y - start2.Y);
+                    float t1 = ((start2.Y - end2.Y) * (start1.X - start2.X) + (end2.X - start2.X) * (start1.Y - start2.Y)) / h;
+                    float t2 = ((start1.Y - end1.Y) * (start1.X - start2.X) + (end1.X - start1.X) * (start1.Y - start2.Y)) / h;
+
+                    if (t1 >= 0 && t1 < 1 && t2 > 0 && t2 < 1)
+                    {
+                        disp += (1 - t1) * (end1 - start1);
+                        returnBool= true;
+                    }
+                }
             }
-            else if(CheckPointInBox(pointOnA, obbB))
+           
+
+            for (int i = 0; i < obbB.collisionPoints.Count; i++)
             {
-                hitPoint.position = pointOnA;
-                return true;
+                Vector2 start1 = obbB.position;
+                Vector2 end1 = obbB.collisionPoints[i];
+                for (int j = 0; j < obbA.collisionPoints.Count; j++)
+                {
+                    Vector2 start2 = obbA.collisionPoints[j];
+                    Vector2 end2 = obbA.collisionPoints[(j + 1) % obbA.collisionPoints.Count];
+
+                    float h = (end2.X - start2.X) * (start1.Y - end1.Y) - (start1.X - end1.X) * (end2.Y - start2.Y);
+                    float t1 = ((start2.Y - end2.Y) * (start1.X - start2.X) + (end2.X - start2.X) * (start1.Y - start2.Y)) / h;
+                    float t2 = ((start1.Y - end1.Y) * (start1.X - start2.X) + (end1.X - start1.X) * (start1.Y - start2.Y)) / h;
+
+                    if (t1 >= 0 && t1 < 1 && t2 > 0 && t2 < 1)
+                    {
+                        disp -= (1 - t1) * (end1 - start1);
+                        returnBool = true;
+                    }
+                }
             }
-            return false;
+            hitPoint.penetrationVec = disp;
+            disp.Normalize();
+            float max = -float.MaxValue;
+            Vector2 normal=Vector2.UnitY;
+            for(int i=0;i<obbB.collisionPoints.Count;i++)
+            {
+              Vector2 edge= obbB.collisionPoints[(i+1)%obbB.collisionPoints.Count]-obbB.collisionPoints[i];
+                edge.Normalize();
+                if (max < (disp.X * edge.Y - disp.Y * edge.X))
+                {
+                    max = (disp.X * edge.Y - disp.Y * edge.X);
+                    normal = edge;  
+                }
 
-
-
+            }
+            hitPoint.normal = new Vector2(-normal.Y,normal.X) ;
+            return returnBool;
         }
 
-        static Vector2 getClosestonOBB(Vector2 point,BoxCollider b )
-        {
-            Vector2 d = point - b.position;
-            Vector2 returnVec = b.position;
-            float x = Vector2.Dot(d, b.XVec);
-            x=Math.Clamp(x,-b.halfWidths.X,b.halfWidths.X);
-            returnVec+= x*b.XVec;
-            float y= Vector2.Dot(d, b.YVec);
-            y = Math.Clamp(y, -b.halfWidths.Y, b.halfWidths.Y);
-            returnVec+= y*b.YVec;
-            return  returnVec;
-        }
+       
+       
 
-        static bool CheckPointInBox(Vector2 point,BoxCollider b)
-        {
-            float x = point.X;
-            float y = point.Y;
-            bool inside = false;
-            for (int i = 0, j = b.collisionPoints.Count-1; i < b.collisionPoints.Count; j = i++)
-            {
-                float xi = b.collisionPoints[i].X, yi = b.collisionPoints[i].Y;
-                float xj = b.collisionPoints[j].X, yj = b.collisionPoints[j].Y;
 
-                var intersect = ((yi > y) != (yj > y))
-                    && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-                if (intersect) inside = !inside;
-            }
 
-            return inside;
-        }
+
+        
 
 
         

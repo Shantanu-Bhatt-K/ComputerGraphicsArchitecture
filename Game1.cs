@@ -15,7 +15,8 @@ namespace ComputerGraphicsArchitecture
         private SpriteBatch _spriteBatch;
         private Player player=new();
         private Rock rock = new();
-
+        private Floor floor = new Floor();
+        float substeps = 8;
  
         public Game1()
         {
@@ -31,9 +32,9 @@ namespace ComputerGraphicsArchitecture
             FileReader.Init(Content);
             
 
-            player.Init(new Vector2(100, 200), "PlayerShip");
-            rock.Init(new Vector2(300, 100), "Meteor");
-
+            player.Init(new Vector2(500, 100), "PlayerShip");
+            rock.Init(new Vector2(100, 200), "Meteor");
+            floor.Init(new Vector2(300, 500), "BlueBlock");
             base.Initialize();
         }
 
@@ -49,11 +50,17 @@ namespace ComputerGraphicsArchitecture
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
-            CollisionManager.Update();
+            
+            
             player.Update(gameTime);
+            floor.Update(gameTime);
             rock.Update(gameTime);
             base.Update(gameTime);
+            
+                CollisionManager.Update();
+
+            
+
         }
 
         protected override void Draw(GameTime gameTime)
@@ -62,6 +69,7 @@ namespace ComputerGraphicsArchitecture
             _spriteBatch.Begin();
             //_spriteBatch.Draw(planeTexure, new Vector2(100, 100), null, Color.White, 0, Vector2.Zero, new Vector2(1, 1), SpriteEffects.None, 0f);
             player.Draw(ref _spriteBatch,gameTime);
+            floor.Draw(ref _spriteBatch,gameTime);
             rock.Draw(ref _spriteBatch,gameTime);
             _spriteBatch.End();
             // TODO: Add your drawing code here
