@@ -16,18 +16,19 @@ namespace ComputerGraphicsArchitecture.GameClasses
        
        
         CircleCollider collider = new CircleCollider();
+        Rigidbody body=new Rigidbody();
         public override void Init(params object[] b)
         {
             renderer.colour = Color.White;
             base.Init(b);
-            //collider.onCollisionEnter += ChangeColor;
-            
+            collider.onCollisionEnter += body.OnCollision;
+            body.Init(transform);
             collider.Init(transform.position,renderer.Width / 2* transform.scale.X);
         }
         public override void Update(GameTime gameTime)
         {
 
-
+            body.Update(gameTime);
             collider.SetCollider(transform.position, renderer.Width / 2 * transform.scale.X);
             
         }

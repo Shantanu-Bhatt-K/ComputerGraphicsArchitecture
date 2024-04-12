@@ -34,7 +34,7 @@ namespace ComputerGraphicsArchitecture
 
             player.Init(new Vector2(500, 100), "PlayerShip");
             rock.Init(new Vector2(100, 200), "Meteor");
-            floor.Init(new Vector2(300, 500), "BlueBlock");
+            floor.Init(new Vector2(300, 400), "BlueBlock");
             base.Initialize();
         }
 

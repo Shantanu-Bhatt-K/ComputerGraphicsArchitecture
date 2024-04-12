@@ -62,6 +62,15 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                         continue;
                     }
                 }
+                else if(col is BoxCollider boxCol)
+                {
+                    if (CollisionManager.Box_CircleCollision(boxCol, this, out HitPoint _hp))
+                    {
+                        hitPoints.Add(_hp);
+
+                        continue;
+                    }
+                }
 
             }
 
@@ -264,6 +273,8 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
 
             return false;
         }
+
+       
 
 
         public static bool OBB_OBB_Collision(BoxCollider obbA, BoxCollider obbB, out HitPoint hitPoint)
