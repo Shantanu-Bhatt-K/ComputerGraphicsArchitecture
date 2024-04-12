@@ -24,7 +24,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
             //collider.onCollisionStay += body.OnCollision;
             transform.scale = new Vector2(20,1);
             collider.Init(transform.position, new Vector2(renderer.Width / 2, renderer.Height / 2) * transform.scale, transform.rotation);
-            transform.rotation = -(float)Math.PI/8;
+            //transform.rotation = -(float)Math.PI/16;
         }
 
         public override void Update(GameTime gameTime)

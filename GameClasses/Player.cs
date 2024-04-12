@@ -20,17 +20,20 @@ namespace ComputerGraphicsArchitecture.GameClasses
         public override void Init(params object[] b)
         {
            base.Init(b);
-            //transform.rotation = 45;
+            transform.rotation = 45;
             collider.onCollisionEnter += body.OnCollision;
-            //collider.onCollisionStay += body.OnCollision;
+            collider.onCollisionStay += body.OnCollisionStay;
+            collider.onCollisionExit += body.OnCollisionExit ;
             collider.Init(transform.position, new Vector2(renderer.Width/2,renderer.Height/2)*transform.scale,transform.rotation);
             body.Init(transform);
+            body.prevPos = transform.position + new Vector2(-1f, 0);
+            //body.restitution = 0;
         }
 
         public override void Update(GameTime gameTime)
         {
 
-            transform.rotation+=0.02f;
+            
             collider.SetCollider(transform.position, new Vector2(renderer.Width / 2, renderer.Height / 2) * transform.scale, transform.rotation);
             body.Update(gameTime);
         }

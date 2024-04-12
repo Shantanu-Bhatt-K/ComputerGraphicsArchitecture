@@ -28,6 +28,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
     public class CircleCollider:BaseCollider
     {
         public float radius;
+        List<BaseCollider> prevColliders = new();
         public override void Init(params object[] b)
         {
             
@@ -47,7 +48,9 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
 
         public override void CheckCollision()
         {
+            
             List<HitPoint> hitPoints = new();
+            List<BaseCollider>colliders = new();
             foreach(BaseCollider col in CollisionManager.CollidersList)
             {
                 if(col==null) continue;
@@ -58,37 +61,35 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                     if(CollisionManager.Circle_CircleCollision(this,collider,out HitPoint _hp))
                     {
                         hitPoints.Add(_hp);
-                        
-                        continue;
+                        colliders.Add(collider);
+                       
                     }
                 }
                 else if(col is BoxCollider boxCol)
                 {
-                    if (CollisionManager.Box_CircleCollision(boxCol, this, out HitPoint _hp))
+                    if (CollisionManager.Circle_BoxCollision(this, boxCol, out HitPoint _hp))
                     {
                         hitPoints.Add(_hp);
+                        colliders.Add(boxCol);
 
-                        continue;
                     }
                 }
 
             }
-
-            if (hitPoints.Count > 0)
+            if(hitPoints.Count>0)
             {
-                if(isColliding)
+                isColliding = true;
+                if (prevColliders.All(colliders.Contains) && colliders.Count == prevColliders.Count)
                     onCollisionStay?.Invoke(hitPoints);
                 else
-                {
-                    isColliding= true; 
                     onCollisionEnter?.Invoke(hitPoints);
-                }
-
+                prevColliders= colliders;
+               
             }
-                
             else
             {
-                if(isColliding)
+                prevColliders.Clear();
+                if (isColliding)
                 {
                     isColliding = false;
                     onCollisionExit?.Invoke();
@@ -107,8 +108,8 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
         public Vector2 YVec = Vector2.UnitY;
         public Vector2 XVec = Vector2.UnitX;
         public List<Vector2> collisionPoints = new List<Vector2>();
-        
-       
+        List<BaseCollider> prevColliders = new();
+
 
         public override void Init(params object[]b)
         {
@@ -136,6 +137,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
         public override void CheckCollision()
         {
             List<HitPoint> hitPoints = new();
+            List<BaseCollider> colliders = new List<BaseCollider>();
             foreach (BaseCollider col in CollisionManager.CollidersList)
             {
                 if (col == null) continue;
@@ -146,8 +148,8 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                     if (CollisionManager.Box_CircleCollision(this, circleCol, out HitPoint _hp))
                     {
                         hitPoints.Add(_hp);
-
-                        continue;
+                        colliders.Add(circleCol);
+                       
                     }
                 }
                 else
@@ -156,6 +158,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                     if(CollisionManager.OBB_OBB_Collision(this,boxCol,out HitPoint _hp))
                     {
                         hitPoints.Add(_hp);
+                        colliders.Add(boxCol);
                     }
                 }
 
@@ -163,18 +166,17 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
 
             if (hitPoints.Count > 0)
             {
-                if (isColliding)
+                isColliding = true;
+                if (prevColliders.All(colliders.Contains) && colliders.Count == prevColliders.Count)
                     onCollisionStay?.Invoke(hitPoints);
                 else
-                {
-                    isColliding = true;
                     onCollisionEnter?.Invoke(hitPoints);
-                }
+                prevColliders = colliders;
 
             }
-
             else
             {
+                prevColliders.Clear();
                 if (isColliding)
                 {
                     isColliding = false;
@@ -263,6 +265,54 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                 Vector2 penetrationVec = -distance * normal;
 
                 // Set hit point data
+                hitPoint.normal = -normal;
+                hitPoint.penetrationVec = penetrationVec;
+                hitPoint.position = closestPoint;
+                hitPoint.depth = -distance;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool Circle_BoxCollision(CircleCollider c, BoxCollider b, out HitPoint hitPoint)
+        {
+            hitPoint = new HitPoint();
+
+            hitPoint = new HitPoint();
+
+            // Get the center of the circle
+            Vector2 center = c.position;
+
+            // Get the vector from the center of the box to the center of the circle
+            Vector2 v = center - b.position;
+
+            // Project the vector onto the axes of the oriented bounding box (OBB)
+            float closestX = Vector2.Dot(v, b.XVec) / b.XVec.LengthSquared();
+            float closestY = Vector2.Dot(v, b.YVec) / b.YVec.LengthSquared();
+
+            // Clamp the projected point to the extents of the OBB
+            closestX = MathHelper.Clamp(closestX, -b.halfWidths.X, b.halfWidths.X);
+            closestY = MathHelper.Clamp(closestY, -b.halfWidths.Y, b.halfWidths.Y);
+
+            // Calculate the closest point on the OBB to the circle
+            Vector2 closestPoint = b.position + closestX * b.XVec + closestY * b.YVec;
+
+            // Calculate the vector from the closest point on the OBB to the center of the circle
+            Vector2 d = center - closestPoint;
+
+            // Calculate the distance between the closest point on the OBB and the center of the circle
+            float distance = d.Length() - c.radius;
+
+            // If the distance is less than or equal to zero, there is a collision
+            if (distance <= 0)
+            {
+                // Calculate the penetration vector
+                Vector2 normal = Vector2.Normalize(d);
+                Vector2 penetrationVec = -distance * normal;
+
+                // Set hit point data
                 hitPoint.normal = normal;
                 hitPoint.penetrationVec = penetrationVec;
                 hitPoint.position = closestPoint;
@@ -274,7 +324,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
             return false;
         }
 
-       
+
 
 
         public static bool OBB_OBB_Collision(BoxCollider obbA, BoxCollider obbB, out HitPoint hitPoint)

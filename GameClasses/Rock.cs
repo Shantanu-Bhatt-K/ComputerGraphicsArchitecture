@@ -22,7 +22,10 @@ namespace ComputerGraphicsArchitecture.GameClasses
             renderer.colour = Color.White;
             base.Init(b);
             collider.onCollisionEnter += body.OnCollision;
+            collider.onCollisionStay += body.OnCollisionStay;
+            collider.onCollisionExit += body.OnCollisionExit;
             body.Init(transform);
+            body.prevPos = transform.position + new Vector2(-1f, 0);
             collider.Init(transform.position,renderer.Width / 2* transform.scale.X);
         }
         public override void Update(GameTime gameTime)
@@ -35,7 +38,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
         public override void Draw(ref SpriteBatch spriteBatch, GameTime gameTime)
         {
            
-            Primitives2D.DrawCircle(spriteBatch,transform.position, renderer.Width / 2 * transform.scale.X, 10, Color.Blue);
+            Primitives2D.DrawCircle(spriteBatch,transform.position, renderer.Width / 2 * transform.scale.X, 50, Color.Blue);
             base.Draw(ref spriteBatch, gameTime);
         }
     }

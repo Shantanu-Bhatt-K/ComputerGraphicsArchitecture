@@ -32,9 +32,9 @@ namespace ComputerGraphicsArchitecture
             FileReader.Init(Content);
             
 
-            player.Init(new Vector2(500, 100), "PlayerShip");
-            rock.Init(new Vector2(100, 200), "Meteor");
-            floor.Init(new Vector2(300, 400), "BlueBlock");
+            player.Init(new Vector2(100, 300), "PlayerShip");
+            rock.Init(new Vector2(100, 100), "Meteor");
+            floor.Init(new Vector2(300, 500), "BlueBlock");
             base.Initialize();
         }
 
@@ -51,13 +51,16 @@ namespace ComputerGraphicsArchitecture
                 Exit();
 
             
-            
-            player.Update(gameTime);
-            floor.Update(gameTime);
-            rock.Update(gameTime);
-            base.Update(gameTime);
-            
+           
                 CollisionManager.Update();
+                player.Update(gameTime);
+                floor.Update(gameTime);
+                rock.Update(gameTime);
+                base.Update(gameTime);
+            
+            
+            
+                
 
             
 
