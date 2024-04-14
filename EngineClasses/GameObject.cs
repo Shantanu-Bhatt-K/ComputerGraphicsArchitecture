@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses
         
         public virtual void Update(GameTime gameTime)
         {
-
+            
         }
 
         public virtual void Draw(ref SpriteBatch spriteBatch,GameTime gameTime)

@@ -15,6 +15,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses
         public Vector2 prevPos;
         public Vector2 currentPos;
         public Vector2 acceleration;
+        public Vector2 impulse = Vector2.Zero;
         public Transform transform;
         public float restitution;
 
@@ -22,7 +23,8 @@ namespace ComputerGraphicsArchitecture.EngineClasses
         public float currentRot;
         public float rotAccel;
         public float rotBounce;
-
+        public float rotDrag;
+        public float drag;
         public Vector2 bounceDir;
 
         bool contacted = false;
@@ -34,9 +36,12 @@ namespace ComputerGraphicsArchitecture.EngineClasses
             prevPos= transform.position;
             currentRot=transform.rotation;
             prevRot=transform.rotation;
-            acceleration =new Vector2(0f,100);
-            restitution =0.85f;
+            acceleration =new Vector2(0,0);
+            restitution =1f;
             rotAccel = 0.0f;
+            drag = 200f;
+            rotDrag = 400f;
+            
         }
 
         public void Update(GameTime gameTime)
@@ -53,11 +58,11 @@ namespace ComputerGraphicsArchitecture.EngineClasses
                 if (contacted)
                 {
                     currentPos += vel;
-                    //contacted = false;
+                    contacted = false;
                 }
                 else
                 {
-                    currentPos += vel + acceleration * (float)(dt * dt);
+                    currentPos += vel + (impulse+acceleration-(drag*vel)) * (float)(dt * dt);
                    
                 }
              bounceDir = Vector2.Zero;
@@ -72,10 +77,11 @@ namespace ComputerGraphicsArchitecture.EngineClasses
             prevRot = currentRot;
 
             
-            currentRot += rotVel + rotAccel * (float)(dt * dt);
+            currentRot += rotVel + (rotAccel-rotDrag*rotVel) * (float)(dt * dt);
             rotBounce = 0;
             transform.rotation = currentRot;
 
+            impulse = Vector2.Zero; 
 
 
         }
@@ -91,36 +97,24 @@ namespace ComputerGraphicsArchitecture.EngineClasses
             foreach (HitPoint hitpoint in hitpoints)
             {
                 hitpoint.normal.Normalize();
+                if (Single.IsNaN(hitpoint.normal.X))
+                    continue;
                 Vector2 hitDir = currentPos - hitpoint.position;
                 Vector2 YVec = new Vector2((float)Math.Sin(currentRot), -(float)Math.Cos(currentRot));
                 Vector2 XVec = new Vector2(-YVec.Y, YVec.X);
                 if (!(Math.Abs(Vector2.Dot(YVec, hitpoint.normal)) >= Math.Cos(0.5f*(float)Math.PI/180) || Math.Abs(Vector2.Dot(XVec, hitpoint.normal)) >= Math.Cos(0.5f * (float)Math.PI / 180)))
                 {
-                    mag += hitpoint.normal.X * hitDir.Y - hitDir.X * hitpoint.normal.Y;
+                    if (!Single.IsNaN(hitpoint.normal.X))
+                        mag += hitpoint.normal.X * hitDir.Y - hitDir.X * hitpoint.normal.Y;
                 }
-               
+                prevPos += Vector2.Dot(currentPos - prevPos, hitpoint.normal) * hitpoint.normal;
+                currentPos += hitpoint.penetrationVec;
                 
-                
-
-            
-
-
-                if (Vector2.Dot(bounceDir, hitpoint.normal) < 0)
-                    bounceDir -= (1 + restitution) * Vector2.Dot(vel, hitpoint.normal) * hitpoint.normal;
-                else
-                    bounceDir += restitution * Vector2.Dot(vel, hitpoint.normal) * hitpoint.normal;
-
-                if (Math.Abs(Vector2.Dot(bounceDir,hitpoint.normal))<=0.001f)
-                {
-                    
-                    contacted = true ;
-                    bounceDir-=Vector2.Dot(bounceDir,hitpoint.normal)*hitpoint.normal;
-                }
 
                
                 
             }
-            rotBounce = (restitution) * mag * (float)Math.PI / 7200f;
+            rotBounce = (restitution) * mag * (float)Math.PI / 900f;
 
 
 
@@ -137,38 +131,28 @@ namespace ComputerGraphicsArchitecture.EngineClasses
             float mag = 0;
             foreach (HitPoint hitpoint in hitpoints)
             {
+                if(Single.IsNaN(hitpoint.normal.X))
+                    continue;
                 Vector2 hitDir = currentPos - hitpoint.position;
-               
-                
+
+
                 Vector2 YVec = new Vector2((float)Math.Sin(currentRot), -(float)Math.Cos(currentRot));
                 Vector2 XVec = new Vector2(-YVec.Y, YVec.X);
                 if (!(Math.Abs(Vector2.Dot(YVec, hitpoint.normal)) >= Math.Cos(0.5f * (float)Math.PI / 180) || Math.Abs(Vector2.Dot(XVec, hitpoint.normal)) >= Math.Cos(0.5f * (float)Math.PI / 180)))
                 {
-                    mag += hitpoint.normal.X * hitDir.Y - hitDir.X * hitpoint.normal.Y;
+                    if (!Single.IsNaN(hitpoint.normal.X))
+                        mag += hitpoint.normal.X * hitDir.Y - hitDir.X * hitpoint.normal.Y;
                 }
                 else
                 {
                     mag = 0;
                 }
 
+                currentPos += hitpoint.penetrationVec;
+             
 
-
-
-                hitpoint.normal.Normalize();
-                if (Vector2.Dot(tempVel, hitpoint.normal) < 0)
-                    tempVel -= (1+ restitution) * Vector2.Dot(vel, hitpoint.normal) * hitpoint.normal;
-                else
-                    tempVel += Vector2.Dot(hitpoint.normal, vel) * restitution * Vector2.Dot(vel, hitpoint.normal) * hitpoint.normal;
-                if (Math.Abs(Vector2.Dot(tempVel, hitpoint.normal)) <= 0.1f)
-                {
-                    
-                    contacted = true;
-                    bounceDir = tempVel-Vector2.Dot(tempVel, hitpoint.normal) * hitpoint.normal;
-                   
-                }
-                
             }
-            rotBounce = (restitution) * mag * (float)Math.PI / 7200f;
+            rotBounce = (restitution) * mag * (float)Math.PI / 900f;
 
 
         }
@@ -176,6 +160,12 @@ namespace ComputerGraphicsArchitecture.EngineClasses
         {
             contacted = false;
             bounceDir = Vector2.Zero;
+        }
+
+
+        public void AddForce(Vector2 force)
+        {
+            impulse = force;
         }
 
         

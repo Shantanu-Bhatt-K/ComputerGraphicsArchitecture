@@ -51,7 +51,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
             
             List<HitPoint> hitPoints = new();
             List<BaseCollider>colliders = new();
-            foreach(BaseCollider col in CollisionManager.CollidersList)
+            foreach(BaseCollider col in CollisionManager.CollidersList.ToList())
             {
                 if(col==null) continue;
                 if(col==this) continue;
@@ -60,6 +60,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                     
                     if(CollisionManager.Circle_CircleCollision(this,collider,out HitPoint _hp))
                     {
+                        _hp.tag=collider.tag;
                         hitPoints.Add(_hp);
                         colliders.Add(collider);
                        
@@ -69,6 +70,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                 {
                     if (CollisionManager.Circle_BoxCollision(this, boxCol, out HitPoint _hp))
                     {
+                        _hp.tag = boxCol.tag;
                         hitPoints.Add(_hp);
                         colliders.Add(boxCol);
 
@@ -147,6 +149,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
 
                     if (CollisionManager.Box_CircleCollision(this, circleCol, out HitPoint _hp))
                     {
+                        _hp.tag = circleCol.tag;
                         hitPoints.Add(_hp);
                         colliders.Add(circleCol);
                        
@@ -157,6 +160,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                 {
                     if(CollisionManager.OBB_OBB_Collision(this,boxCol,out HitPoint _hp))
                     {
+                        _hp.tag = boxCol.tag;
                         hitPoints.Add(_hp);
                         colliders.Add(boxCol);
                     }
@@ -196,6 +200,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
         public float depth;
         public Vector2 normal;
         public Vector2 penetrationVec;
+        public string tag;
     }
     static class CollisionManager
     {
@@ -206,10 +211,15 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
         {
             CollidersList.Add(collider);
         }
+        public static void Remove<T>(T collider) where T : BaseCollider
+        {
+            CollidersList.Remove(collider);
+        }
 
         public static void Update()
         {
-            foreach(BaseCollider collider in CollidersList)
+            
+            foreach(BaseCollider collider in CollidersList.ToList())
             {
                 collider.CheckCollision();
             }
@@ -220,7 +230,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
             float penetration = (c1.position - c2.position).Length() - (c1.radius + c2.radius);
             if (penetration > 0)
                 return false;
-            hitPoint.normal = c2.position - c1.position;
+            hitPoint.normal = c1.position - c2.position;
             hitPoint.normal.Normalize();
             hitPoint.penetrationVec = -penetration * hitPoint.normal;
             hitPoint.depth = -penetration;
@@ -261,11 +271,11 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
             if (distance <= 0)
             {
                 // Calculate the penetration vector
-                Vector2 normal = Vector2.Normalize(d);
+                Vector2 normal = -Vector2.Normalize(d);
                 Vector2 penetrationVec = -distance * normal;
 
                 // Set hit point data
-                hitPoint.normal = -normal;
+                hitPoint.normal = normal;
                 hitPoint.penetrationVec = penetrationVec;
                 hitPoint.position = closestPoint;
                 hitPoint.depth = -distance;
@@ -377,7 +387,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                     }
                 }
             }
-            hitPoint.penetrationVec = disp;
+            hitPoint.penetrationVec = -disp/2;
             disp.Normalize();
             float max = -float.MaxValue;
             Vector2 normal=Vector2.UnitY;

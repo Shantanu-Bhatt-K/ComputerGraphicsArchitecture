@@ -13,24 +13,50 @@ namespace ComputerGraphicsArchitecture.GameClasses
 {
     internal class Rock:GameObject
     {
-       
-       
-        CircleCollider collider = new CircleCollider();
+        Vector2 speed = Vector2.One;
+        float immuneTime = 0.5f;
+        float timer = 0;
+        bool isImmune = true;
+        public CircleCollider collider = new CircleCollider();
         Rigidbody body=new Rigidbody();
+        public int type;
+        public Action<Vector2,Rock> Destroyed;
+        public Rock(Rock rock)
+        {
+           this.renderer.texture=rock.renderer.texture;
+            this.renderer.colour=rock.renderer.colour;
+            this.type=rock.type;
+            this.transform.scale = rock.transform.scale;
+
+
+        }
+       
+
+        public Rock()
+        {
+        }
+
         public override void Init(params object[] b)
         {
             renderer.colour = Color.White;
             base.Init(b);
-            collider.onCollisionEnter += body.OnCollision;
-            collider.onCollisionStay += body.OnCollisionStay;
-            collider.onCollisionExit += body.OnCollisionExit;
+            
             body.Init(transform);
-            body.prevPos = transform.position + new Vector2(0, 0);
+            body.prevPos = transform.position+(Vector2)b[2];
+            body.drag = 0;
             collider.Init(transform.position,renderer.Width / 2* transform.scale.X);
         }
         public override void Update(GameTime gameTime)
         {
-
+            timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if(timer>immuneTime && isImmune)
+                {
+                    collider.onCollisionEnter += body.OnCollision;
+                    collider.onCollisionEnter += callDestroy;
+                    collider.onCollisionStay += body.OnCollisionStay;
+                    collider.onCollisionExit += body.OnCollisionExit;
+                    isImmune = false;
+                }
             body.Update(gameTime);
             collider.SetCollider(transform.position, renderer.Width / 2 * transform.scale.X);
             
@@ -40,6 +66,19 @@ namespace ComputerGraphicsArchitecture.GameClasses
            
             Primitives2D.DrawCircle(spriteBatch,transform.position, renderer.Width / 2 * transform.scale.X, 50, Color.Blue);
             base.Draw(ref spriteBatch, gameTime);
+        }
+
+
+        public void callDestroy(List<HitPoint>hitp)
+        {
+            foreach (HitPoint hitpoint in hitp)
+                if (hitpoint.tag == "Bullet")
+                {
+                          CollisionManager.Remove(this.collider);
+                    Destroyed?.Invoke(transform.position, this);
+                    return;
+                }
+
         }
     }
 }

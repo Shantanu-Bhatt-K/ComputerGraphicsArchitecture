@@ -1,5 +1,6 @@
 ﻿
 using ComputerGraphicsArchitecture.EngineClasses.Collision;
+using ComputerGraphicsArchitecture.EngineClasses.InputManagement;
 using ComputerGraphicsArchitecture.EngineClasses.StaticClasses;
 using ComputerGraphicsArchitecture.GameClasses;
 using Microsoft.Xna.Framework;
@@ -14,13 +15,14 @@ namespace ComputerGraphicsArchitecture
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Player player=new();
-        private Rock rock = new();
-        private Floor floor = new Floor();
-        float substeps = 8;
- 
+        private MeteorSpawner spawner=new MeteorSpawner();
+        
+        private Texture2D backGround;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
+            _graphics.PreferredBackBufferHeight = 720;
+            _graphics.PreferredBackBufferWidth = 1280;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
            
@@ -32,52 +34,47 @@ namespace ComputerGraphicsArchitecture
             FileReader.Init(Content);
             
 
-            player.Init(new Vector2(150, 300), "PlayerShip");
-            rock.Init(new Vector2(100, 100), "Meteor");
-            floor.Init(new Vector2(300, 500), "BlueBlock");
+            player.Init(new Vector2(100, 300), "PlayerShip");
+            spawner.Init(new Vector2(_graphics.PreferredBackBufferWidth/2, _graphics.PreferredBackBufferHeight/ 2), player.transform);
+            
+            CommandManager.AddComboBinding(new List<Keys> { Keys.LeftAlt,Keys.LeftControl}, StopGame);
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            backGround = FileReader.ReadContent<Texture2D>("Background");
             // TODO: use this.Content to load your game content here
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
-            
-           
                 CollisionManager.Update();
+                CommandManager.Update();
                 player.Update(gameTime);
-                floor.Update(gameTime);
-                rock.Update(gameTime);
-                base.Update(gameTime);
-            
-            
-            
                 
-
-            
-
-        }
+                spawner.Update(gameTime);
+                base.Update(gameTime);
+         }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             _spriteBatch.Begin();
-            //_spriteBatch.Draw(planeTexure, new Vector2(100, 100), null, Color.White, 0, Vector2.Zero, new Vector2(1, 1), SpriteEffects.None, 0f);
+            _spriteBatch.Draw(backGround, Vector2.Zero, Color.White);
             player.Draw(ref _spriteBatch,gameTime);
-            floor.Draw(ref _spriteBatch,gameTime);
-            rock.Draw(ref _spriteBatch,gameTime);
+           
+            spawner.Draw(ref _spriteBatch,gameTime);
             _spriteBatch.End();
             // TODO: Add your drawing code here
             
             base.Draw(gameTime);
+        }
+
+        void StopGame(eButtonState buttonState,Vector2 amount)
+        {
+            Exit();
         }
     }
 }
