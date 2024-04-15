@@ -29,11 +29,11 @@ namespace ComputerGraphicsArchitecture.GameClasses
             Rock mediumRock = new Rock();
             Rock smallRock = new Rock();
             bigRock.Init(Vector2.Zero, "Meteor",Vector2.Zero);
-            bigRock.transform.scale = new Vector2(2, 2);
+            bigRock.transform.scale = new Vector2(1, 1);
             CollisionManager.Remove(bigRock.collider);
             bigRock.type = 0;
             mediumRock.Init(Vector2.Zero, "Meteor", Vector2.Zero);
-            mediumRock.transform.scale = new Vector2(1, 1);
+            mediumRock.transform.scale = new Vector2(0.75f, 0.75f);
             CollisionManager.Remove(mediumRock.collider);
             mediumRock.type = 1;
             smallRock.Init(Vector2.Zero, "Meteor", Vector2.Zero);

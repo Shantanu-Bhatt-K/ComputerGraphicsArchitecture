@@ -140,7 +140,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
         {
             List<HitPoint> hitPoints = new();
             List<BaseCollider> colliders = new List<BaseCollider>();
-            foreach (BaseCollider col in CollisionManager.CollidersList)
+            foreach (BaseCollider col in CollisionManager.CollidersList.ToList())
             {
                 if (col == null) continue;
                 if (col == this) continue;
@@ -204,27 +204,33 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
     }
     static class CollisionManager
     {
-        public static readonly List<BaseCollider> CollidersList = new List<BaseCollider>();
+        private static readonly object lockObject = new object();
+        public  static readonly List<BaseCollider> CollidersList = new List<BaseCollider>();
 
-
-        public static void Add<T>(T collider) where T : BaseCollider 
+        public static void Add(BaseCollider collider)
         {
-            CollidersList.Add(collider);
+            lock (lockObject)
+            {
+                CollidersList.Add(collider);
+            }
         }
-        public static void Remove<T>(T collider) where T : BaseCollider
+
+        public static void Remove(BaseCollider collider)
         {
-            CollidersList.Remove(collider);
+            lock (lockObject)
+            {
+                CollidersList.Remove(collider);
+            }
         }
 
         public static void Update()
         {
-            
-            foreach(BaseCollider collider in CollidersList.ToList())
+            Parallel.ForEach(CollidersList.ToList(), collider =>
             {
                 collider.CheckCollision();
-            }
+            });
         }
-        public static bool Circle_CircleCollision(CircleCollider c1, CircleCollider c2, out HitPoint hitPoint)
+            public static bool Circle_CircleCollision(CircleCollider c1, CircleCollider c2, out HitPoint hitPoint)
         {
             hitPoint = new HitPoint();
             float penetration = (c1.position - c2.position).Length() - (c1.radius + c2.radius);
@@ -339,18 +345,33 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
 
         public static bool OBB_OBB_Collision(BoxCollider obbA, BoxCollider obbB, out HitPoint hitPoint)
         {
-            bool returnBool = false;
+            bool collisionDetected = false;
             hitPoint = new HitPoint();
             Vector2 disp = Vector2.Zero;
-            Vector2 position=Vector2.Zero;
-            for (int i = 0; i < obbA.collisionPoints.Count; i++)
+            Vector2 position = Vector2.Zero;
+
+            // Precalculate repeated values for obbB
+            Vector2[] normalsB = new Vector2[obbB.collisionPoints.Count];
+            for (int i = 0; i < obbB.collisionPoints.Count; i++)
+            {
+                Vector2 edge = obbB.collisionPoints[(i + 1) % obbB.collisionPoints.Count] - obbB.collisionPoints[i];
+                normalsB[i] = new Vector2(-edge.Y, edge.X); // Perpendicular vectors
+                normalsB[i].Normalize();
+            }
+
+            int numCollisionPointsA = obbA.collisionPoints.Count;
+            int numCollisionPointsB = obbB.collisionPoints.Count;
+
+            for (int i = 0; i < numCollisionPointsA && !collisionDetected; i++)
             {
                 Vector2 start1 = obbA.position;
                 Vector2 end1 = obbA.collisionPoints[i];
-                for (int j = 0; j < obbB.collisionPoints.Count; j++)
+                Vector2 edge1 = end1 - start1; // Calculate once
+
+                for (int j = 0; j < numCollisionPointsB && !collisionDetected; j++)
                 {
                     Vector2 start2 = obbB.collisionPoints[j];
-                    Vector2 end2 = obbB.collisionPoints[(j + 1) % obbB.collisionPoints.Count];
+                    Vector2 end2 = obbB.collisionPoints[(j + 1) % numCollisionPointsB];
 
                     float h = (end2.X - start2.X) * (start1.Y - end1.Y) - (start1.X - end1.X) * (end2.Y - start2.Y);
                     float t1 = ((start2.Y - end2.Y) * (start1.X - start2.X) + (end2.X - start2.X) * (start1.Y - start2.Y)) / h;
@@ -358,65 +379,47 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
 
                     if (t1 >= 0 && t1 < 1 && t2 > 0 && t2 < 1)
                     {
-                        disp += (1 - t1) * (end1 - start1);
-                        position += t1 * (end1 - start1);
-                        returnBool = true;
+                        disp += (1 - t1) * edge1;
+                        position += t1 * edge1;
+                        collisionDetected = true;
                     }
                 }
             }
-           
 
-            for (int i = 0; i < obbB.collisionPoints.Count; i++)
+            if (collisionDetected)
             {
-                Vector2 start1 = obbB.position;
-                Vector2 end1 = obbB.collisionPoints[i];
-                for (int j = 0; j < obbA.collisionPoints.Count; j++)
+                // Find the edge of obbB most opposed to the displacement vector
+                float max = -float.MaxValue;
+                Vector2 normal = Vector2.UnitY;
+
+                for (int i = 0; i < numCollisionPointsB; i++)
                 {
-                    Vector2 start2 = obbA.collisionPoints[j];
-                    Vector2 end2 = obbA.collisionPoints[(j + 1) % obbA.collisionPoints.Count];
-
-                    float h = (end2.X - start2.X) * (start1.Y - end1.Y) - (start1.X - end1.X) * (end2.Y - start2.Y);
-                    float t1 = ((start2.Y - end2.Y) * (start1.X - start2.X) + (end2.X - start2.X) * (start1.Y - start2.Y)) / h;
-                    float t2 = ((start1.Y - end1.Y) * (start1.X - start2.X) + (end1.X - start1.X) * (start1.Y - start2.Y)) / h;
-
-                    if (t1 >= 0 && t1 < 1 && t2 > 0 && t2 < 1)
+                    if (max < (disp.X * normalsB[i].Y - disp.Y * normalsB[i].X))
                     {
-                        disp -= (1 - t1) * (end1 - start1);
-                        position -= t1 * (end1 - start1);
-                        returnBool = true;
+                        max = (disp.X * normalsB[i].Y - disp.Y * normalsB[i].X);
+                        normal = normalsB[i];
                     }
                 }
-            }
-            hitPoint.penetrationVec = -disp/2;
-            disp.Normalize();
-            float max = -float.MaxValue;
-            Vector2 normal=Vector2.UnitY;
-            for(int i=0;i<obbB.collisionPoints.Count;i++)
-            {
-              Vector2 edge= obbB.collisionPoints[(i+1)%obbB.collisionPoints.Count]-obbB.collisionPoints[i];
-                edge.Normalize();
-                if (max < (disp.X * edge.Y - disp.Y * edge.X))
-                {
-                    max = (disp.X * edge.Y - disp.Y * edge.X);
-                    normal = edge;  
-                }
 
+                hitPoint.penetrationVec = -disp / 2;
+                hitPoint.normal = new Vector2(-normal.Y, normal.X);
+                hitPoint.position = obbA.position + position;
             }
-            hitPoint.normal = new Vector2(-normal.Y,normal.X) ;
-            hitPoint.position = obbA.position + position;
-            return returnBool;
+
+            return collisionDetected;
         }
 
-       
-       
 
 
 
 
-        
 
 
-        
+
+
+
+
+
 
 
 

@@ -87,9 +87,9 @@ namespace ComputerGraphicsArchitecture.GameClasses
         }
         void Shoot(eButtonState state,Vector2 amount)
         {
-            if(state==eButtonState.PRESSED)
+            if(state==eButtonState.DOWN)
             {
-                if(bullets.Count>=100 )
+                if(bullets.Count>=1000 )
                 {
                     RemoveBullet(bullets[0].transform.position, bullets[0]);
                 }
@@ -115,18 +115,22 @@ namespace ComputerGraphicsArchitecture.GameClasses
             if(transform.position.X<0)
             {
                 body.currentPos.X += 1280;
+                body.prevPos.X += 1280;
             }
-            if (transform.position.X < 0)
+            if (transform.position.X > 1280)
             {
-                body.currentPos.X += 1280;
+                body.currentPos.X -= 1280;
+                body.prevPos.X -= 1280;
             }
-            if (transform.position.X < 0)
+            if (transform.position.Y < 0)
             {
-                body.currentPos.X += 1280;
+                body.currentPos.Y += 720;
+                body.prevPos.Y += 720;
             }
-            if (transform.position.X < 0)
+            if (transform.position.Y > 720)
             {
-                body.currentPos.X += 1280;
+                body.currentPos.Y -=720;
+                body.prevPos.Y -=720;
             }
 
         }

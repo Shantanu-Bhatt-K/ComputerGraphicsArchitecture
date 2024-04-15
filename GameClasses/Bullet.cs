@@ -14,9 +14,9 @@ namespace ComputerGraphicsArchitecture.GameClasses
     internal class Bullet: GameObject
     {
         public Action<Vector2, Bullet> Destroyed;
-        Rigidbody rb=new();
+        Rigidbody body=new();
         public BoxCollider collider=new();
-        public float maxTime=5f;
+        public float maxTime=10f;
         public float life;
         public override void Init(params object[] b)
         {
@@ -25,9 +25,9 @@ namespace ComputerGraphicsArchitecture.GameClasses
             transform.scale = Vector2.One / 10;
             transform.rotation = (float)b[2];
             
-            rb.Init(transform);
-            rb.prevPos -= (Vector2)b[3];
-            rb.drag = 0;
+            body.Init(transform);
+            body.prevPos -= (Vector2)b[3];
+            body.drag = 0;
             collider.Init(transform.position, new Vector2(renderer.Width / 2, renderer.Height / 2) * transform.scale, transform.rotation);
             collider.tag = "Bullet";
            
@@ -37,13 +37,14 @@ namespace ComputerGraphicsArchitecture.GameClasses
         }
         public override void Update(GameTime gameTime)
         {
-            rb.Update(gameTime);
+            body.Update(gameTime);
            
             life += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (maxTime <= life)
                 callDestroy();
-            Vector2 vel = rb.currentPos - rb.prevPos;
+            Vector2 vel = body.currentPos - body.prevPos;
             transform.rotation = (float)Math.Atan2(vel.X , 1-vel.Y);
+            Constrain();
             collider.SetCollider(transform.position, new Vector2(renderer.Width / 2, renderer.Height / 2) * transform.scale, transform.rotation);
         }
 
@@ -64,6 +65,31 @@ namespace ComputerGraphicsArchitecture.GameClasses
             Destroyed?.Invoke(transform.position, this);
             return;
 
+
+        }
+
+        void Constrain()
+        {
+            if (transform.position.X < 0)
+            {
+                body.currentPos.X += 1280;
+                body.prevPos.X += 1280;
+            }
+            if (transform.position.X > 1280)
+            {
+                body.currentPos.X -= 1280;
+                body.prevPos.X -= 1280;
+            }
+            if (transform.position.Y < 0)
+            {
+                body.currentPos.Y += 720;
+                body.prevPos.Y += 720;
+            }
+            if (transform.position.Y > 720)
+            {
+                body.currentPos.Y -= 720;
+                body.prevPos.Y -= 720;
+            }
 
         }
     }
