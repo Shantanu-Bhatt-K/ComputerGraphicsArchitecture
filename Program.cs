@@ -1,3 +1,5 @@
 ﻿
-using var game = new ComputerGraphicsArchitecture.Game1();
+using ComputerGraphicsArchitecture.GameClasses.StateMachines;
+
+using var game = new GameStateMachine();
 game.Run();

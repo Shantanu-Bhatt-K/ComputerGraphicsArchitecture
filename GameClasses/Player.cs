@@ -23,6 +23,9 @@ namespace ComputerGraphicsArchitecture.GameClasses
         Vector2 inputVec = Vector2.Zero;
        List<Bullet> bullets = new List<Bullet>();
        Rigidbody body = new Rigidbody();
+        bool isAuto = false;
+
+        public int Health = 100;
         public override void Init(params object[] b)
         {
            base.Init(b);
@@ -30,6 +33,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
             collider.onCollisionEnter += body.OnCollision;
             collider.onCollisionStay += body.OnCollisionStay;
             collider.onCollisionExit += body.OnCollisionExit ;
+            
             collider.Init(transform.position, new Vector2(renderer.Width/2,renderer.Height/2)*transform.scale,transform.rotation);
             collider.tag = "Player";
             body.Init(transform);
@@ -38,6 +42,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
             CommandManager.AddKeyboardBinding(Keys.Right, RightInput);
             CommandManager.AddKeyboardBinding(Keys.Down, DownInput);
             CommandManager.AddKeyboardBinding(Keys.Space, Shoot);
+            CommandManager.AddKeyboardBinding(Keys.Enter, SwitchShooting);
         }
 
         public override void Update(GameTime gameTime)
@@ -87,7 +92,8 @@ namespace ComputerGraphicsArchitecture.GameClasses
         }
         void Shoot(eButtonState state,Vector2 amount)
         {
-            if(state==eButtonState.DOWN)
+            
+            if((state==eButtonState.DOWN && isAuto) || (state == eButtonState.PRESSED && !isAuto))
             {
                 if(bullets.Count>=1000 )
                 {
@@ -101,6 +107,14 @@ namespace ComputerGraphicsArchitecture.GameClasses
                  bullets.Add(temp);
                 
             }
+            
+
+
+        }
+        void SwitchShooting(eButtonState state, Vector2 amount)
+        {
+            if (state == eButtonState.PRESSED)
+                isAuto = !isAuto;
         }
 
         void RemoveBullet(Vector2 position, Bullet bullet)
@@ -134,6 +148,18 @@ namespace ComputerGraphicsArchitecture.GameClasses
             }
 
         }
+
+        public void RemoveBindings()
+        {
+            CommandManager.RemoveKeys(Keys.Left, LeftInput);
+            CommandManager.RemoveKeys(Keys.Up, UpInput);
+            CommandManager.RemoveKeys(Keys.Right, RightInput);
+            CommandManager.RemoveKeys(Keys.Down, DownInput);
+            CommandManager.RemoveKeys(Keys.Space, Shoot);
+            CommandManager.RemoveKeys(Keys.Enter, SwitchShooting);
+        }
+
+        
 
 
 

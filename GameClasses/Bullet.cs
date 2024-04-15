@@ -16,7 +16,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
         public Action<Vector2, Bullet> Destroyed;
         Rigidbody body=new();
         public BoxCollider collider=new();
-        public float maxTime=10f;
+        public float maxTime=20f;
         public float life;
         public override void Init(params object[] b)
         {

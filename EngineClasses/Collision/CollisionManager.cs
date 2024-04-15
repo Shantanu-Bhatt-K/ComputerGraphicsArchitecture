@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -51,8 +52,9 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
             
             List<HitPoint> hitPoints = new();
             List<BaseCollider>colliders = new();
-            foreach(BaseCollider col in CollisionManager.CollidersList.ToList())
+            foreach(KeyValuePair<BaseCollider,int> kvp in CollisionManager.CollidersList)
             {
+                BaseCollider col=kvp.Key;
                 if(col==null) continue;
                 if(col==this) continue;
                 if(col is CircleCollider collider)
@@ -140,8 +142,10 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
         {
             List<HitPoint> hitPoints = new();
             List<BaseCollider> colliders = new List<BaseCollider>();
-            foreach (BaseCollider col in CollisionManager.CollidersList.ToList())
+            
+            foreach (KeyValuePair<BaseCollider,int> kvp in CollisionManager.CollidersList)
             {
+                BaseCollider col = kvp.Key;
                 if (col == null) continue;
                 if (col == this) continue;
                 if (col is CircleCollider circleCol)
@@ -205,13 +209,13 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
     static class CollisionManager
     {
         private static readonly object lockObject = new object();
-        public  static readonly List<BaseCollider> CollidersList = new List<BaseCollider>();
+        public static readonly ConcurrentDictionary<BaseCollider, int> CollidersList = new ConcurrentDictionary<BaseCollider, int>();
 
         public static void Add(BaseCollider collider)
         {
             lock (lockObject)
             {
-                CollidersList.Add(collider);
+                CollidersList.TryAdd(collider,CollidersList.Count);
             }
         }
 
@@ -219,15 +223,24 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
         {
             lock (lockObject)
             {
-                CollidersList.Remove(collider);
+        
+                CollidersList.Remove(collider,out int key);
+            }
+        }
+        public static void ClearList()
+        {
+            lock (lockObject)
+            {
+
+                CollidersList.Clear();
             }
         }
 
         public static void Update()
         {
-            Parallel.ForEach(CollidersList.ToList(), collider =>
+            Parallel.ForEach(CollidersList, collider =>
             {
-                collider.CheckCollision();
+                collider.Key.CheckCollision();
             });
         }
             public static bool Circle_CircleCollision(CircleCollider c1, CircleCollider c2, out HitPoint hitPoint)
@@ -408,21 +421,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
 
             return collisionDetected;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+       
 
     }
 }

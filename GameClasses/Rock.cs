@@ -20,7 +20,8 @@ namespace ComputerGraphicsArchitecture.GameClasses
         public CircleCollider collider = new CircleCollider();
         Rigidbody body=new Rigidbody();
         public int type;
-        public Action<Vector2,Rock> Destroyed;
+        public Action<Rock> Destroyed;
+        public Action<Vector2,Rock> Spawn;
         public Rock(Rock rock)
         {
            this.renderer.texture=rock.renderer.texture;
@@ -45,6 +46,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
             body.prevPos = transform.position+(Vector2)b[2];
             body.drag = 0;
             collider.Init(transform.position,renderer.Width / 2* transform.scale.X);
+            collider.tag = "Meteor";
         }
         public override void Update(GameTime gameTime)
         {
@@ -72,12 +74,22 @@ namespace ComputerGraphicsArchitecture.GameClasses
         public void callDestroy(List<HitPoint>hitp)
         {
             foreach (HitPoint hitpoint in hitp)
-                if (hitpoint.tag == "Bullet")
+            {
+                if (hitpoint.tag == "Player")
                 {
-                          CollisionManager.Remove(this.collider);
-                    Destroyed?.Invoke(transform.position, this);
-                    return;
+                    CollisionManager.Remove(this.collider);
+                    Destroyed?.Invoke( this);
+                   
                 }
+                if (hitpoint.tag == "Bullet" )
+                {
+                    CollisionManager.Remove(this.collider);
+                    Spawn?.Invoke(transform.position, this);
+                    
+                }
+                
+            }
+                
 
         }
     }

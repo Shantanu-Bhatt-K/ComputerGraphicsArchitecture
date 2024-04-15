@@ -34,7 +34,11 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
         }
         static public void OnKeyDown(object sender, KeyboardEventArgs e)
         {
-
+            if (!m_KeyBindings.ContainsKey(e.Key))
+            {
+                m_Input.RemoveKey(e.Key);
+                return;
+            }
             List<GameAction> actions = m_KeyBindings[e.Key];
             foreach (GameAction action in actions)
             {
@@ -47,6 +51,11 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
         }
         static public void OnKeyUp(object sender, KeyboardEventArgs e)
         {
+            if (!m_KeyBindings.ContainsKey(e.Key))
+            {
+                m_Input.RemoveKey(e.Key);
+                return;
+            }
             List<GameAction> actions = m_KeyBindings[e.Key];
             foreach (GameAction action in actions)
             {
@@ -58,6 +67,11 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
         }
         static public void OnKeyPressed(object sender, KeyboardEventArgs e)
         {
+            if (!m_KeyBindings.ContainsKey(e.Key))
+            {
+                m_Input.RemoveKey(e.Key);
+                return;
+            }
             List<GameAction> actions = m_KeyBindings[e.Key];
             foreach (GameAction action in actions)
             {
@@ -70,7 +84,11 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
 
         static public void OnComboDown(object sender, MultiKeyboardEventsArgs e)
         {
-
+            if (!m_ComboBindings.ContainsKey(e.Combo))
+            {
+                m_Input.RemoveCombo(e.Combo);
+                return;
+            }
             List<GameAction> actions = m_ComboBindings[e.Combo];
             foreach (GameAction action in actions)
             {
@@ -83,6 +101,11 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
         }
         static public void OnComboUp(object sender, MultiKeyboardEventsArgs e)
         {
+            if (!m_ComboBindings.ContainsKey(e.Combo))
+            {
+                m_Input.RemoveCombo(e.Combo);
+                return;
+            }
             List<GameAction> actions = m_ComboBindings[e.Combo];
             foreach (GameAction action in actions)
             {
@@ -94,6 +117,11 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
         }
         static public void OnComboPressed(object sender, MultiKeyboardEventsArgs e)
         {
+            if (!m_ComboBindings.ContainsKey(e.Combo))
+            {
+                m_Input.RemoveCombo(e.Combo);
+                return;
+            }
             List<GameAction> actions = m_ComboBindings[e.Combo];
             foreach (GameAction action in actions)
             {
@@ -133,6 +161,38 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
             {
                 m_ComboBindings.Add(keys, new List<GameAction> { action });
             }
+
+        }
+        static public void RemoveCombos(List<Keys> keys, GameAction action)
+        {
+            
+            
+            // Add the binding to the command map
+            if (m_ComboBindings.ContainsKey(keys))
+            {
+                if (m_ComboBindings[keys].Contains(action))
+                    m_ComboBindings[keys].Remove(action);
+                if (m_ComboBindings[keys].Count== 0)
+                    m_ComboBindings.Remove(keys);
+
+            }
+            
+
+
+        }
+
+        static public void RemoveKeys(Keys key, GameAction action)
+        {
+            // Add key to listen for when polling
+            if (m_KeyBindings.ContainsKey(key))
+            {
+                if (m_KeyBindings[key].Contains(action))
+                    m_KeyBindings[key].Remove(action);
+                if (m_KeyBindings[key].Count == 0)
+                    m_KeyBindings.Remove(key);
+
+            }
+
 
         }
     }

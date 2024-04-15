@@ -20,11 +20,11 @@ namespace ComputerGraphicsArchitecture.GameClasses
         float spawnTimer=3f;
         float difficultyMeter = 0.9f;
         float currentTime = 0;
-        Transform playerTransform;
+        Player player;
         public override void Init(params object[] b)
         {
             spawnCentre = (Vector2)b[0];
-            playerTransform = (Transform)b[1];
+            player= (Player)b[1];
             Rock bigRock = new Rock();
             Rock mediumRock = new Rock();
             Rock smallRock = new Rock();
@@ -91,7 +91,9 @@ namespace ComputerGraphicsArchitecture.GameClasses
             Vector2 spawnDir = spawnCentre+new Vector2((float)Math.Cos(randAngle), (float)Math.Sin(randAngle)) * spawnRadius;
             Rock tempRock = new(types[rand.Next(3)]);
             tempRock.Destroyed += RemoveRock;
-            Vector2 speed=-Vector2.Normalize(playerTransform.position-spawnDir)*5*(float)rand.NextDouble();
+            tempRock.Spawn += RemoveRock;
+            tempRock.Destroyed += reducePlayerhealth;
+            Vector2 speed=-Vector2.Normalize(player.transform.position-spawnDir)*5*(float)rand.NextDouble();
             tempRock.Init(spawnDir, "Meteor", speed);
            
             Meteors.Add(tempRock);
@@ -105,13 +107,16 @@ namespace ComputerGraphicsArchitecture.GameClasses
             Vector2 dir = new Vector2((float)Math.Cos(randAngle), (float)Math.Sin(randAngle)) ;
             Rock tempRock = new(types[type+1]);
             tempRock.Destroyed += RemoveRock;
+            tempRock.Spawn += RemoveRock;
+            tempRock.Destroyed += reducePlayerhealth;
             Vector2 speed = dir* 2 ;
             tempRock.Init(position, "Meteor", speed);
             Meteors.Add(tempRock);
             speed = -speed;
             tempRock = new(types[type+1]);
             tempRock.Destroyed += RemoveRock;
-           
+            tempRock.Spawn += RemoveRock;
+            tempRock.Destroyed += reducePlayerhealth;
             tempRock.Init(position, "Meteor", speed);
             Meteors.Add(tempRock);
 
@@ -132,6 +137,10 @@ namespace ComputerGraphicsArchitecture.GameClasses
             Meteors.Remove(rock);
             
 
+        }
+        void reducePlayerhealth(Rock rock)
+        {
+            player.Health -= 10;
         }
 
 
