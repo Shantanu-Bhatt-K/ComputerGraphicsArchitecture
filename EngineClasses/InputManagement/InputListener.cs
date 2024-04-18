@@ -12,7 +12,8 @@ namespace ComputerGraphicsArchitecture.EngineClasses.InputManagement
         {
             PRESSED,
             DOWN,
-            UP
+            UP,
+            MOVED
         }
 
      class InputListener
@@ -28,6 +29,16 @@ namespace ComputerGraphicsArchitecture.EngineClasses.InputManagement
         public event EventHandler<MultiKeyboardEventsArgs> OnComboPressed = delegate { };
 
         public event EventHandler<MultiKeyboardEventsArgs> OnComboUp = delegate { };
+
+        public event EventHandler<MouseEventArgs> onMouseMove = delegate { };
+
+        public event EventHandler<MouseEventArgs>onMouseDown=delegate { };
+
+        public event EventHandler<MouseEventArgs> onMouseUp=delegate { };
+
+        public event EventHandler<MouseEventArgs> onMousePressed = delegate { };
+
+
 
         HashSet<Keys> inputKeys;
         HashSet<List<Keys>> inputCombos;
@@ -116,7 +127,54 @@ namespace ComputerGraphicsArchitecture.EngineClasses.InputManagement
         }
          void FireMouseEvents()
         {
+            if(currentMouseState.Position!=previousMouseState.Position)
+            {
+                onMouseMove?.Invoke(this,new MouseEventArgs(MouseButton.NONE,currentMouseState,previousMouseState));
+            }
 
+
+            if(currentMouseState.LeftButton==ButtonState.Pressed)
+            {
+                onMouseDown?.Invoke(this, new MouseEventArgs(MouseButton.LEFT, currentMouseState, previousMouseState));
+            }
+            if (currentMouseState.LeftButton == ButtonState.Pressed && previousMouseState.LeftButton!=ButtonState.Pressed)
+            {
+                onMousePressed?.Invoke(this, new MouseEventArgs(MouseButton.LEFT, currentMouseState, previousMouseState));
+            }
+            if (currentMouseState.LeftButton != ButtonState.Pressed && previousMouseState.LeftButton == ButtonState.Pressed)
+            {
+                onMouseUp?.Invoke(this, new MouseEventArgs(MouseButton.LEFT, currentMouseState, previousMouseState));
+            }
+
+            
+            
+            if (currentMouseState.RightButton == ButtonState.Pressed)
+            {
+                onMouseDown?.Invoke(this, new MouseEventArgs(MouseButton.RIGHT, currentMouseState, previousMouseState));
+            }
+            if (currentMouseState.RightButton == ButtonState.Pressed && previousMouseState.RightButton != ButtonState.Pressed)
+            {
+                onMousePressed?.Invoke(this, new MouseEventArgs(MouseButton.RIGHT, currentMouseState, previousMouseState));
+            }
+            if (currentMouseState.RightButton != ButtonState.Pressed && previousMouseState.RightButton == ButtonState.Pressed)
+            {
+                onMouseUp?.Invoke(this, new MouseEventArgs(MouseButton.RIGHT, currentMouseState, previousMouseState));
+            }
+
+            
+            
+            if (currentMouseState.MiddleButton == ButtonState.Pressed)
+            {
+                onMouseDown?.Invoke(this, new MouseEventArgs(MouseButton.MIDDLE, currentMouseState, previousMouseState));
+            }
+            if (currentMouseState.MiddleButton == ButtonState.Pressed && previousMouseState.MiddleButton != ButtonState.Pressed)
+            {
+                onMousePressed?.Invoke(this, new MouseEventArgs(MouseButton.MIDDLE, currentMouseState, previousMouseState));
+            }
+            if (currentMouseState.MiddleButton != ButtonState.Pressed && previousMouseState.MiddleButton == ButtonState.Pressed)
+            {
+                onMouseUp?.Invoke(this, new MouseEventArgs(MouseButton.MIDDLE, currentMouseState, previousMouseState));
+            }
         }
         public  void AddKey(Keys _input)
         {

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ComputerGraphicsArchitecture.EngineClasses.StaticClasses;
 
 namespace ComputerGraphicsArchitecture.GameClasses
 {
@@ -77,12 +78,14 @@ namespace ComputerGraphicsArchitecture.GameClasses
             {
                 if (hitpoint.tag == "Player")
                 {
+                    AudioManager.PlaySFX("Explosion");
                     CollisionManager.Remove(this.collider);
                     Destroyed?.Invoke( this);
                    
                 }
                 if (hitpoint.tag == "Bullet" )
                 {
+                    AudioManager.PlaySFX("Explosion");
                     CollisionManager.Remove(this.collider);
                     Spawn?.Invoke(transform.position, this);
                     

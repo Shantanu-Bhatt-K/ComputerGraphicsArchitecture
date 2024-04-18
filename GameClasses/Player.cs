@@ -26,6 +26,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
         bool isAuto = false;
 
         public int Health = 100;
+        public int Score = 0;
         public override void Init(params object[] b)
         {
            base.Init(b);
@@ -43,6 +44,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
             CommandManager.AddKeyboardBinding(Keys.Down, DownInput);
             CommandManager.AddKeyboardBinding(Keys.Space, Shoot);
             CommandManager.AddKeyboardBinding(Keys.Enter, SwitchShooting);
+            AudioManager.AddSFX("BulletSound");
         }
 
         public override void Update(GameTime gameTime)
@@ -99,6 +101,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
                 {
                     RemoveBullet(bullets[0].transform.position, bullets[0]);
                 }
+                AudioManager.PlaySFX("BulletSound");
                 Vector2 forward= new Vector2((float)Math.Sin(transform.rotation), -(float)Math.Cos(transform.rotation));
                 Vector2 bulletPos = transform.position + (renderer.Height * transform.scale.Y) * forward;
                 Bullet temp = new Bullet();

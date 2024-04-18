@@ -6,15 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Collections.Specialized.BitVector32;
 
 namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
 {
     public delegate void GameAction(eButtonState buttonState, Vector2 amount);
+    public delegate void MouseAction(eButtonState buttonState, Point position, Point delta);
     public static class CommandManager
     {
         static private InputListener m_Input;
         static  Dictionary<Keys,List<GameAction>> m_KeyBindings = new Dictionary<Keys, List<GameAction>>();
         static  Dictionary<List<Keys>,List<GameAction>> m_ComboBindings = new Dictionary<List<Keys>, List<GameAction>>();
+        static Dictionary<MouseButton,List<MouseAction>> m_MouseBindings=new Dictionary<MouseButton,List<MouseAction>>();
         static CommandManager()
         {
             m_Input = new InputListener();
@@ -25,6 +28,12 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
             m_Input.OnComboDown += OnComboDown;
             m_Input.OnComboUp += OnComboUp;
             m_Input.OnComboPressed += OnComboPressed;
+
+            m_Input.onMouseDown += onMouseDown;
+            m_Input.onMouseMove += onMouseMove;
+            m_Input.onMouseUp += onMouseUp;
+            m_Input.onMousePressed += onMousePressed;
+
 
         }
         static public void Update()
@@ -92,10 +101,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
             List<GameAction> actions = m_ComboBindings[e.Combo];
             foreach (GameAction action in actions)
             {
-                if (action != null)
-                {
-                    action(eButtonState.DOWN, new Vector2(1.0f));
-                }
+                action?.Invoke(eButtonState.DOWN, new Vector2(1.0f));
             }
 
         }
@@ -109,10 +115,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
             List<GameAction> actions = m_ComboBindings[e.Combo];
             foreach (GameAction action in actions)
             {
-                if (action != null)
-                {
-                    action(eButtonState.UP, new Vector2(1.0f));
-                }
+                action?.Invoke(eButtonState.UP, new Vector2(1.0f));
             }
         }
         static public void OnComboPressed(object sender, MultiKeyboardEventsArgs e)
@@ -125,12 +128,56 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
             List<GameAction> actions = m_ComboBindings[e.Combo];
             foreach (GameAction action in actions)
             {
-                if (action != null)
-                {
-                    action(eButtonState.PRESSED, new Vector2(1.0f));
-                }
+                action?.Invoke(eButtonState.PRESSED, new Vector2(1.0f));
             }
         }
+
+
+        static public void onMousePressed(object sender, MouseEventArgs e)
+        {
+            if (!m_MouseBindings.ContainsKey(e.Button))
+                return;
+            List<MouseAction> actions = m_MouseBindings[e.Button];
+            foreach(MouseAction action in actions)
+            {
+                action?.Invoke(eButtonState.PRESSED, e.CurrentState.Position, e.CurrentState.Position - e.PrevState.Position);
+            }
+        }
+
+        static public void onMouseDown(object sender, MouseEventArgs e)
+        {
+            if (!m_MouseBindings.ContainsKey(e.Button))
+                return;
+            List<MouseAction> actions = m_MouseBindings[e.Button];
+            foreach (MouseAction action in actions)
+            {
+                action?.Invoke(eButtonState.DOWN, e.CurrentState.Position, e.CurrentState.Position - e.PrevState.Position);
+            }
+        }
+
+        static public void onMouseUp(object sender, MouseEventArgs e)
+        {
+            if (!m_MouseBindings.ContainsKey(e.Button))
+                return;
+            List<MouseAction> actions = m_MouseBindings[e.Button];
+            foreach (MouseAction action in actions)
+            {
+                action?.Invoke(eButtonState.UP, e.CurrentState.Position, e.CurrentState.Position - e.PrevState.Position);
+            }
+        }
+
+        static public void onMouseMove(object sender, MouseEventArgs e)
+        {
+
+            if (!m_MouseBindings.ContainsKey(e.Button))
+                return;
+            List<MouseAction> actions = m_MouseBindings[e.Button];
+            foreach (MouseAction action in actions)
+            {
+                action?.Invoke(eButtonState.MOVED, e.CurrentState.Position, e.CurrentState.Position - e.PrevState.Position);
+            }
+        }
+
 
         static public void AddKeyboardBinding(Keys key, GameAction action)
         {
@@ -163,6 +210,21 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
             }
 
         }
+        static public void AddMouseBinding(MouseButton Button, MouseAction action)
+        {
+            if (m_MouseBindings.ContainsKey(Button))
+                m_MouseBindings[Button].Add(action);
+            else
+                m_MouseBindings.Add(Button, new List<MouseAction> { action });
+        
+        }
+        static public void AddMouseBinding(MouseAction action)
+        {
+            if (m_MouseBindings.ContainsKey(MouseButton.NONE))
+                m_MouseBindings[MouseButton.NONE].Add(action);
+            else
+                m_MouseBindings.Add(MouseButton.NONE, new List<MouseAction> { action });
+        }
         static public void RemoveCombos(List<Keys> keys, GameAction action)
         {
             
@@ -194,6 +256,32 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
             }
 
 
+        }
+
+
+        static public void RemoveMouseButtons(MouseButton key, MouseAction action)
+        {
+            // Add key to listen for when polling
+            if (m_MouseBindings.ContainsKey(key))
+            {
+                if (m_MouseBindings[key].Contains(action))
+                    m_MouseBindings[key].Remove(action);
+                if (m_MouseBindings[key].Count == 0)
+                    m_MouseBindings.Remove(key);
+
+            }
+        }
+        static public void RemoveMouseButtons( MouseAction action)
+        {
+            // Add key to listen for when polling
+            if (m_MouseBindings.ContainsKey(MouseButton.NONE))
+            {
+                if (m_MouseBindings[MouseButton.NONE].Contains(action))
+                    m_MouseBindings[MouseButton.NONE].Remove(action);
+                if (m_MouseBindings[MouseButton.NONE].Count == 0)
+                    m_MouseBindings.Remove(MouseButton.NONE);
+
+            }
         }
     }
 

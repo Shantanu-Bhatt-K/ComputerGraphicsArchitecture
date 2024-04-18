@@ -32,8 +32,9 @@ namespace ComputerGraphicsArchitecture.GameClasses.StateMachines
         public override void Draw(SpriteBatch _spriteBatch, GameTime gameTime)
         {
             _spriteBatch.Draw(backGround, Vector2.Zero, Color.White);
-            string Text = "Health: " + player.Health.ToString();
-            _spriteBatch.DrawString(HudFont,Text , new Vector2(10, 10), Color.White);
+           
+            _spriteBatch.DrawString(HudFont, "Health - " + player.Health.ToString(), new Vector2(10, 10), Color.White);
+            _spriteBatch.DrawString(HudFont, "Score - " + player.Score.ToString(), new Vector2(10, 60), Color.White);
             player.Draw(ref _spriteBatch,gameTime);
 
             spawner.Draw(ref _spriteBatch,gameTime);
@@ -50,7 +51,14 @@ namespace ComputerGraphicsArchitecture.GameClasses.StateMachines
 
         public override void Exit()
         {
-            CollisionManager.ClearList();
+            List<int> Scores = FileReader.ReadXML<List<int>>("scores");
+            if(Scores==null)
+                Scores = new List<int>();
+            Scores.Add(player.Score);
+            Scores.Sort();
+            Scores.Reverse();
+            FileReader.WriteXML<List<int>>("scores",Scores);
+            CollisionManager.ClearList(); 
             player.RemoveBindings();
 
         }

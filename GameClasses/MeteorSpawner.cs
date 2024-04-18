@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ComputerGraphicsArchitecture.EngineClasses;
 using Microsoft.Xna.Framework.Graphics;
 using ComputerGraphicsArchitecture.EngineClasses.Collision;
+using ComputerGraphicsArchitecture.EngineClasses.StaticClasses;
 
 namespace ComputerGraphicsArchitecture.GameClasses
 {
@@ -41,6 +42,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
             CollisionManager.Remove(smallRock.collider);
             smallRock.type = 2;
 
+            AudioManager.AddSFX("Explosion");
             types.Add(bigRock);
             types.Add(mediumRock);
             types.Add(smallRock);
@@ -124,6 +126,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
 
         void RemoveRock(Vector2 position,Rock rock)
         {
+            player.Score += 5*(3-rock.type);
             Meteors.Remove(rock);
             if(rock.type<2)
             {

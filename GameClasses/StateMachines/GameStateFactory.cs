@@ -25,9 +25,13 @@ namespace ComputerGraphicsArchitecture.GameClasses.StateMachines
             return new MainState(_ctx,this);
         }
 
-        public BaseGameState Pause()
+        public BaseGameState Help()
         {
-            return new PauseState(_ctx,this);
+            return new HelpState(_ctx,this);
+        }
+        public BaseGameState Score()
+        {
+            return new ScoreState(_ctx, this);
         }
         public BaseGameState GameOver()
         {
