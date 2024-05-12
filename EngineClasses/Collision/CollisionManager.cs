@@ -18,6 +18,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
         public Action<List<HitPoint>> onCollisionEnter;
         public Action onCollisionExit;
         public Action<List<HitPoint>> onCollisionStay;
+        public bool isPhysic = true;
         public abstract void Init(params object[] b);
         public abstract void SetCollider(params object[] b);
 
@@ -63,6 +64,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                     if(CollisionManager.Circle_CircleCollision(this,collider,out HitPoint _hp))
                     {
                         _hp.tag=collider.tag;
+                        _hp.otherIsPhysic = collider.isPhysic;
                         hitPoints.Add(_hp);
                         colliders.Add(collider);
                        
@@ -73,6 +75,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                     if (CollisionManager.Circle_BoxCollision(this, boxCol, out HitPoint _hp))
                     {
                         _hp.tag = boxCol.tag;
+                        _hp.otherIsPhysic = boxCol.isPhysic;
                         hitPoints.Add(_hp);
                         colliders.Add(boxCol);
 
@@ -106,7 +109,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
 
     public class BoxCollider:BaseCollider
     {
-        public Vector2 position;
+        
         public Vector2 halfWidths;
         public float rotation;
         public Vector2 YVec = Vector2.UnitY;
@@ -154,6 +157,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                     if (CollisionManager.Box_CircleCollision(this, circleCol, out HitPoint _hp))
                     {
                         _hp.tag = circleCol.tag;
+                        _hp.otherIsPhysic = circleCol.isPhysic;
                         hitPoints.Add(_hp);
                         colliders.Add(circleCol);
                        
@@ -165,6 +169,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
                     if(CollisionManager.OBB_OBB_Collision(this,boxCol,out HitPoint _hp))
                     {
                         _hp.tag = boxCol.tag;
+                        _hp.otherIsPhysic = boxCol.isPhysic;
                         hitPoints.Add(_hp);
                         colliders.Add(boxCol);
                     }
@@ -205,6 +210,7 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
         public Vector2 normal;
         public Vector2 penetrationVec;
         public string tag;
+        public bool otherIsPhysic;
     }
     static class CollisionManager
     {
@@ -259,7 +265,6 @@ namespace ComputerGraphicsArchitecture.EngineClasses.Collision
 
         public static bool Box_CircleCollision(BoxCollider b, CircleCollider c, out HitPoint hitPoint)
         {
-            hitPoint = new HitPoint();
 
             hitPoint = new HitPoint();
 

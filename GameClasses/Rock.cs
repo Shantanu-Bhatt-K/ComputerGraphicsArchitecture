@@ -15,7 +15,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
     internal class Rock:GameObject
     {
         Vector2 speed = Vector2.One;
-        float immuneTime = 0.5f;
+        float immuneTime = 0.3f;
         float timer = 0;
         bool isImmune = true;
         public CircleCollider collider = new CircleCollider();
@@ -88,7 +88,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
                     AudioManager.PlaySFX("Explosion");
                     CollisionManager.Remove(this.collider);
                     Spawn?.Invoke(transform.position, this);
-                    
+                    break;
                 }
                 
             }

@@ -19,6 +19,7 @@ namespace ComputerGraphicsArchitecture.GameClasses.StateMachines
         
         private Player player = new();
         private MeteorSpawner spawner = new MeteorSpawner();
+        private PowerupSpawner powerupspawner = new PowerupSpawner();
         private Texture2D backGround;
         private SpriteFont HudFont;
         public override void CheckSwitchStates()
@@ -38,12 +39,14 @@ namespace ComputerGraphicsArchitecture.GameClasses.StateMachines
             player.Draw(ref _spriteBatch,gameTime);
 
             spawner.Draw(ref _spriteBatch,gameTime);
+            powerupspawner.Draw(ref _spriteBatch,gameTime);
         }
 
         public override void Enter()
         {
             player.Init(new Vector2(_ctx._graphics.PreferredBackBufferWidth / 2, _ctx._graphics.PreferredBackBufferHeight / 2), "PlayerShip");
             spawner.Init(new Vector2(_ctx._graphics.PreferredBackBufferWidth/2, _ctx._graphics.PreferredBackBufferHeight/ 2), player);
+            powerupspawner.Init(new Vector2(_ctx._graphics.PreferredBackBufferWidth/2, _ctx._graphics.PreferredBackBufferHeight/ 2), player);
             backGround = FileReader.ReadContent<Texture2D>("Background");
             HudFont = FileReader.ReadContent<SpriteFont>("Inlanders");
             CommandManager.AddComboBinding(new List<Keys> { Keys.LeftAlt,Keys.LeftControl}, StopGame);
@@ -57,6 +60,10 @@ namespace ComputerGraphicsArchitecture.GameClasses.StateMachines
             Scores.Add(player.Score);
             Scores.Sort();
             Scores.Reverse();
+            if (Scores.Count > 8)
+            {
+                Scores.RemoveRange(8, Scores.Count - 8);
+            }
             FileReader.WriteXML<List<int>>("scores",Scores);
             CollisionManager.ClearList(); 
             player.RemoveBindings();
@@ -68,6 +75,7 @@ namespace ComputerGraphicsArchitecture.GameClasses.StateMachines
             player.Update(gameTime);
 
             spawner.Update(gameTime);
+            powerupspawner.Update(gameTime);
         }
 
         public void StopGame(eButtonState bs,Vector2 amount)

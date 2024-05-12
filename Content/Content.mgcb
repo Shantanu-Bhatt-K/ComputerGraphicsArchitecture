@@ -25,6 +25,18 @@
 /processorParam:TextureFormat=Color
 /build:—Pngtree—start button in pixel art_7949383.png;StartButton.png
 
+#begin ../../../../Downloads/favpng_vector-graphics-clip-art-bullet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../../../Downloads/favpng_vector-graphics-clip-art-bullet.png;PowerUp.png
+
 #begin Background.png
 /importer:TextureImporter
 /processor:TextureProcessor

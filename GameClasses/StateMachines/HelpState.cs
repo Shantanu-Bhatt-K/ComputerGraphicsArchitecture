@@ -25,14 +25,14 @@ namespace ComputerGraphicsArchitecture.GameClasses.StateMachines
 
         public override void Draw(SpriteBatch _spritebatch, GameTime gametime)
         {
-            _spritebatch.Draw(backgroundTexture, Vector2.Zero, Color.Blue);
+            _spritebatch.Draw(backgroundTexture, Vector2.Zero, Color.Tomato);
             DrawShadowed(_spritebatch, "Help", new Vector2(_ctx._graphics.PreferredBackBufferWidth / 2, _ctx._graphics.PreferredBackBufferHeight / 10),1,Color.Yellow);
             DrawShadowed(_spritebatch, "Press Up to move Forward", new Vector2(_ctx._graphics.PreferredBackBufferWidth / 2,2* _ctx._graphics.PreferredBackBufferHeight / 10),0.5f,Color.White);
             DrawShadowed(_spritebatch, "Press Down to move Backward", new Vector2(_ctx._graphics.PreferredBackBufferWidth / 2, 3*_ctx._graphics.PreferredBackBufferHeight / 10), 0.5f, Color.White);
             DrawShadowed(_spritebatch, "Press Left to rotate Clockwise", new Vector2(_ctx._graphics.PreferredBackBufferWidth / 2, 4*_ctx._graphics.PreferredBackBufferHeight / 10), 0.5f, Color.White);
             DrawShadowed(_spritebatch, "Press Right to rotate Counter-Clockwise", new Vector2(_ctx._graphics.PreferredBackBufferWidth / 2, 5*_ctx._graphics.PreferredBackBufferHeight / 10), 0.5f, Color.White);
             DrawShadowed(_spritebatch, "Press Space to Shoot", new Vector2(_ctx._graphics.PreferredBackBufferWidth / 2, 6*_ctx._graphics.PreferredBackBufferHeight / 10), 0.5f, Color.White);
-            DrawShadowed(_spritebatch, "Press Enter to Switch Modes", new Vector2(_ctx._graphics.PreferredBackBufferWidth / 2, 7*_ctx._graphics.PreferredBackBufferHeight / 10), 0.5f, Color.White);
+            //DrawShadowed(_spritebatch, "Press Enter to Switch Modes", new Vector2(_ctx._graphics.PreferredBackBufferWidth / 2, 7*_ctx._graphics.PreferredBackBufferHeight / 10), 0.5f, Color.White);
 
             returnButton.Draw(ref _spritebatch, gametime);
         }

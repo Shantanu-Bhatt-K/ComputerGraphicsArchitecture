@@ -29,6 +29,7 @@ namespace ComputerGraphicsArchitecture.GameClasses.StateMachines
 
         public override void Draw(SpriteBatch _spriteBatch, GameTime gametime)
         {
+            _spriteBatch.Draw(backgroundTexture, Vector2.Zero, Color.Purple);
             DrawShadowed(_spriteBatch, "High Scores", new Vector2(_ctx._graphics.PreferredBackBufferWidth / 2,0), 1, Color.Yellow);
             for (int i = 0;i<Scores.Count;i++)
             {

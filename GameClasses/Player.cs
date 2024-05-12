@@ -24,7 +24,8 @@ namespace ComputerGraphicsArchitecture.GameClasses
        List<Bullet> bullets = new List<Bullet>();
        Rigidbody body = new Rigidbody();
         bool isAuto = false;
-
+        float timer = 0;
+        float powerUpTime = 3;
         public int Health = 100;
         public int Score = 0;
         public override void Init(params object[] b)
@@ -43,7 +44,6 @@ namespace ComputerGraphicsArchitecture.GameClasses
             CommandManager.AddKeyboardBinding(Keys.Right, RightInput);
             CommandManager.AddKeyboardBinding(Keys.Down, DownInput);
             CommandManager.AddKeyboardBinding(Keys.Space, Shoot);
-            CommandManager.AddKeyboardBinding(Keys.Enter, SwitchShooting);
             AudioManager.AddSFX("BulletSound");
         }
 
@@ -55,7 +55,11 @@ namespace ComputerGraphicsArchitecture.GameClasses
             inputVec = Vector2.Zero;
             Constrain();
             body.Update(gameTime);
-            
+            timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if(timer>powerUpTime)
+            {
+                isAuto = false;
+            }
             foreach (Bullet bullet in bullets.ToList())
             {
                 bullet.Update(gameTime);
@@ -114,10 +118,10 @@ namespace ComputerGraphicsArchitecture.GameClasses
 
 
         }
-        void SwitchShooting(eButtonState state, Vector2 amount)
+        public void SwitchShooting()
         {
-            if (state == eButtonState.PRESSED)
-                isAuto = !isAuto;
+            timer = 0;
+            isAuto = true;
         }
 
         void RemoveBullet(Vector2 position, Bullet bullet)
@@ -131,13 +135,13 @@ namespace ComputerGraphicsArchitecture.GameClasses
         {
             if(transform.position.X<0)
             {
-                body.currentPos.X += 1280;
-                body.prevPos.X += 1280;
+                body.currentPos.X += 720;
+                body.prevPos.X += 720;
             }
-            if (transform.position.X > 1280)
+            if (transform.position.X > 720)
             {
-                body.currentPos.X -= 1280;
-                body.prevPos.X -= 1280;
+                body.currentPos.X -= 720;
+                body.prevPos.X -= 720;
             }
             if (transform.position.Y < 0)
             {
@@ -159,7 +163,7 @@ namespace ComputerGraphicsArchitecture.GameClasses
             CommandManager.RemoveKeys(Keys.Right, RightInput);
             CommandManager.RemoveKeys(Keys.Down, DownInput);
             CommandManager.RemoveKeys(Keys.Space, Shoot);
-            CommandManager.RemoveKeys(Keys.Enter, SwitchShooting);
+            
         }
 
         

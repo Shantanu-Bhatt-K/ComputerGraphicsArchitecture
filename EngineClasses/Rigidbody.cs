@@ -96,6 +96,8 @@ namespace ComputerGraphicsArchitecture.EngineClasses
             float mag = 0;
             foreach (HitPoint hitpoint in hitpoints)
             {
+                if (!hitpoint.otherIsPhysic)
+                    continue;
                 hitpoint.normal.Normalize();
                 if (Single.IsNaN(hitpoint.normal.X))
                     continue;
@@ -131,7 +133,9 @@ namespace ComputerGraphicsArchitecture.EngineClasses
             float mag = 0;
             foreach (HitPoint hitpoint in hitpoints)
             {
-                if(Single.IsNaN(hitpoint.normal.X))
+                if (!hitpoint.otherIsPhysic)
+                    continue;
+                if (Single.IsNaN(hitpoint.normal.X))
                     continue;
                 Vector2 hitDir = currentPos - hitpoint.position;
 

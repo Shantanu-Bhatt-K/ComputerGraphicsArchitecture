@@ -12,10 +12,17 @@ using ComputerGraphicsArchitecture.EngineClasses.StaticClasses;
 
 namespace ComputerGraphicsArchitecture.GameClasses
 {
+    public class MeteorData
+    {
+        public Vector2 scale = Vector2.Zero;
+        public int type;
+
+    }
     internal class MeteorSpawner:GameObject
     {
         List<Rock> Meteors=new List<Rock>();
         List<Rock> types = new List<Rock>();
+
         float spawnRadius = 800f;
         Vector2 spawnCentre=Vector2.Zero;
         float spawnTimer=3f;
@@ -24,29 +31,24 @@ namespace ComputerGraphicsArchitecture.GameClasses
         Player player;
         public override void Init(params object[] b)
         {
+            List<MeteorData> list = new List<MeteorData>();
+           
             spawnCentre = (Vector2)b[0];
             player= (Player)b[1];
-            Rock bigRock = new Rock();
-            Rock mediumRock = new Rock();
-            Rock smallRock = new Rock();
-            bigRock.Init(Vector2.Zero, "Meteor",Vector2.Zero);
-            bigRock.transform.scale = new Vector2(1, 1);
-            CollisionManager.Remove(bigRock.collider);
-            bigRock.type = 0;
-            mediumRock.Init(Vector2.Zero, "Meteor", Vector2.Zero);
-            mediumRock.transform.scale = new Vector2(0.75f, 0.75f);
-            CollisionManager.Remove(mediumRock.collider);
-            mediumRock.type = 1;
-            smallRock.Init(Vector2.Zero, "Meteor", Vector2.Zero);
-            smallRock.transform.scale = new Vector2(0.5f, 0.5f);
-            CollisionManager.Remove(smallRock.collider);
-            smallRock.type = 2;
+            list = FileReader.ReadXML<List<MeteorData>>("MeteorTypes");
+            foreach (MeteorData mete in list)
+            {
+                Rock temp=new Rock();
+                temp.Init(Vector2.Zero, "Meteor", Vector2.Zero);
+                temp.transform.scale = mete.scale;
+                temp.type=mete.type;
+                CollisionManager.Remove(temp.collider);
+                types.Add(temp);
+            }
+            
 
             AudioManager.AddSFX("Explosion");
-            types.Add(bigRock);
-            types.Add(mediumRock);
-            types.Add(smallRock);
-
+            
 
         }
 

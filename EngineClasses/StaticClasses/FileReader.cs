@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Content;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,7 +22,20 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
 
         public static  T ReadContent<T>(string Location)
         {
-            return Content.Load<T>(Location);
+           
+            try
+            {
+                T obj = Content.Load<T>(Location);
+                return obj;
+            }
+            catch (Exception e)
+            {
+                // If we've caught an exception, output an error message
+                // describing the error
+                Console.WriteLine("ERROR: File could not be found!");
+                Console.WriteLine("Exception Message: " + e.Message);
+                return default;
+            }
         }
         public static T ReadXML<T>(string Location)
         {
@@ -42,11 +56,21 @@ namespace ComputerGraphicsArchitecture.EngineClasses.StaticClasses
         }
         public static void WriteXML<T>(string Location,T Data) 
         {
-           
-                using StreamWriter reader = new(Location);
-                new XmlSerializer(typeof(T)).Serialize(reader.BaseStream, Data);
-            
-           
+
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(Location))
+                {
+                    new XmlSerializer(typeof(T)).Serialize(writer.BaseStream, Data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error writing XML: " + ex.Message);
+                // You can also log the exception or handle it based on your application's requirements
+            }
+
+
         }
     }
 }
